@@ -8,14 +8,15 @@ Proyecto del curso Base de Datos II (UCSP, 2026-2): implementación propia de un
 
 ```bash
 docker compose up -d --build
-docker compose exec db make -C pruebas      # pruebas de la Skip List en memoria
+docker compose exec db make -C pruebas      # pruebas: construcción, búsqueda, inserción y rango
+docker compose exec db psql -U postgres -c "CREATE EXTENSION skiplist;"   # esqueleto de la extensión
 ```
 
 ## Avance
 
 - [x] Semana 1: comprensión y diseño
 - [x] Semana 2: construcción y búsqueda con pruebas
-- [ ] Semana 3: inserción, rango y esqueleto de la extensión
+- [x] Semana 3: inserción, rango y esqueleto de la extensión
 - [ ] Semana 4: integración con PostgreSQL
 - [ ] Semana 5: demo reproducible y comparación preliminar con B-tree
 

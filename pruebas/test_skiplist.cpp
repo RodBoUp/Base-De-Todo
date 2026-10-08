@@ -110,11 +110,72 @@ static void pruebaConstruccionYBusqueda(size_t n)
     VERIFICAR(sl.buscar((int32_t)(n * 10 + 1), [](const SLNodo &) {}) == 0, "clave mayor que todas");
 }
 
+// --- Agregado en la semana 3 ---
+static void pruebaInsercion(size_t n)
+{
+    std::printf("Prueba 3: inserción de %zu claves en desorden\n", n);
+    std::mt19937 rng(7);
+    std::uniform_int_distribution<int32_t> dist(-1000000, 1000000);
+    std::multimap<int32_t, uint32_t> esperado;
+    AlmacenMemoria a;
+    SL sl(a);
+    for (uint32_t i = 0; i < n; i++)
+    {
+        int32_t c = dist(rng);
+        sl.insertar(c, ubic(i));
+        esperado.insert({c, i});
+    }
+    VERIFICAR(estructuraCorrecta(a), "estructura ordenada después de insertar");
+    int malas = 0;
+    for (auto &p : esperado)
+        if (sl.buscar(p.first, [](const SLNodo &) {}) != esperado.count(p.first))
+            malas++;
+    VERIFICAR(malas == 0, "todas las claves insertadas se encuentran");
+
+    std::printf("Prueba 4: búsqueda por rango\n");
+    malas = 0;
+    for (int k = 0; k < 500; k++)
+    {
+        int32_t d = dist(rng), h = d + 5000;
+        size_t real = std::distance(esperado.lower_bound(d), esperado.upper_bound(h));
+        int32_t previa = INT32_MIN;
+        bool orden = true;
+        size_t obtenidos = sl.buscarRango(d, h, [&](const SLNodo &nodo) {
+            if (nodo.clave < previa || nodo.clave < d || nodo.clave > h) orden = false;
+            previa = nodo.clave;
+        });
+        if (obtenidos != real || !orden)
+            malas++;
+    }
+    VERIFICAR(malas == 0, "rangos correctos y en orden");
+}
+
+static void pruebaConstruirEInsertar()
+{
+    std::printf("Prueba 5: construir con 1000 claves y luego insertar 100 más\n");
+    AlmacenMemoria a;
+    SL sl(a);
+    std::vector<SLEntrada> e;
+    for (uint32_t i = 0; i < 1000; i++)
+        e.push_back(SLEntrada{(int32_t)(i * 2), ubic(i)});          /* claves pares */
+    sl.construir(e.data(), e.size());
+    for (uint32_t i = 0; i < 100; i++)
+        sl.insertar((int32_t)(i * 20 + 1), ubic(2000 + i));         /* claves impares */
+    VERIFICAR(estructuraCorrecta(a), "estructura ordenada");
+    VERIFICAR(sl.buscar(41, [](const SLNodo &) {}) == 1, "encuentra una clave insertada");
+    VERIFICAR(sl.buscar(40, [](const SLNodo &) {}) == 1, "encuentra una clave de la construcción");
+    VERIFICAR(sl.buscarRango(0, 99, [](const SLNodo &) {}) == 55, "rango 0..99 = 50 pares + 5 impares");
+}
+// --- Fin de lo agregado en la semana 3 ---
 
 int main()
 {
     pruebaEjemplo();
     pruebaConstruccionYBusqueda(100000);
+    // --- Agregado en la semana 3 ---
+    pruebaInsercion(100000);
+    pruebaConstruirEInsertar();
+    // --- Fin de lo agregado en la semana 3 ---
     if (fallas == 0)
         std::printf("\nTODAS LAS PRUEBAS PASARON\n");
     else

@@ -1,0 +1,5 @@
+# Extensión skiplist: índice Skip List para PostgreSQL (proyecto BD II)
+comment = 'Índice Skip List para columnas INTEGER'
+default_version = '1.0'
+module_pathname = '$libdir/skiplist'
+relocatable = true

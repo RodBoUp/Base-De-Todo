@@ -9,5 +9,6 @@ RUN apt-get update \
 WORKDIR /proyecto
 COPY . /proyecto
 
-# Compilar las pruebas de la Skip List en memoria
-RUN make -C pruebas test_skiplist
+# Compilar e instalar la extensión, y compilar las pruebas en memoria
+RUN make -C extension clean all install \
+ && make -C pruebas test_skiplist

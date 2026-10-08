@@ -121,6 +121,71 @@ public:
         return recorrerRango(clave, clave, alEncontrar);
     }
 
+    // --- Agregado en la semana 3 ---
+    /* ------------------------------------------------------------------
+     * INSERCIÓN (semana 3)
+     * 1) Se baja por los niveles como en la búsqueda, guardando en
+     *    "previo[i]" el último nodo visitado en cada nivel.
+     * 2) Se sortea el nivel del nodo nuevo.
+     * 3) Se enlaza el nodo nuevo después de previo[i] en cada nivel,
+     *    empezando por el nivel 0 (así una búsqueda simultánea nunca ve
+     *    la lista "rota").
+     * ------------------------------------------------------------------ */
+    void insertar(int32_t clave, SLUbicacion ubicacion)
+    {
+        sl_ref previo[SL_MAX_NIVEL];
+        sl_ref sigDePrevio[SL_MAX_NIVEL];
+        SLNodo x, sig;
+        sl_ref refX = SL_HEAD;
+        a.leer(SL_HEAD, x);
+
+        int nivelActual = a.nivelActual();
+        for (int i = nivelActual - 1; i >= 0; i--)
+        {
+            while (x.sig[i] != SL_NULO)
+            {
+                a.leer(x.sig[i], sig);
+                if (sig.clave >= clave)
+                    break;
+                refX = x.sig[i];
+                x = sig;
+            }
+            previo[i] = refX;
+            sigDePrevio[i] = x.sig[i];
+        }
+
+        SLNodo nodo = nuevoNodo(clave, ubicacion);
+        if (nodo.nivel > nivelActual)
+        {
+            /* el nodo es más alto que todos: en esos niveles va después del HEAD */
+            SLNodo head;
+            a.leer(SL_HEAD, head);
+            for (int i = nivelActual; i < nodo.nivel; i++)
+            {
+                previo[i] = SL_HEAD;
+                sigDePrevio[i] = head.sig[i];
+            }
+            a.fijarNivelActual(nodo.nivel);
+        }
+
+        for (int i = 0; i < nodo.nivel; i++)
+            nodo.sig[i] = sigDePrevio[i];       /* nuevo -> siguiente */
+        sl_ref ref = a.crear(nodo);
+        for (int i = 0; i < nodo.nivel; i++)
+            a.enlazar(previo[i], i, ref);       /* previo -> nuevo */
+    }
+
+    /* ------------------------------------------------------------------
+     * BÚSQUEDA POR RANGO (semana 3)
+     * Se ubica el primer nodo >= desde y se recorre el nivel 0 (que tiene
+     * todas las claves en orden) hasta pasar "hasta". O(log n + k).
+     * ------------------------------------------------------------------ */
+    template <class F>
+    size_t buscarRango(int32_t desde, int32_t hasta, F alEncontrar)
+    {
+        return recorrerRango(desde, hasta, alEncontrar);
+    }
+    // --- Fin de lo agregado en la semana 3 ---
 
     /* Avanza al siguiente nodo del nivel 0 (lo usa el escaneo de PostgreSQL). */
     sl_ref siguiente(sl_ref ref, SLNodo &nodo)
