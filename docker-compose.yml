@@ -1,0 +1,18 @@
+# Levanta PostgreSQL 18.6 con la extensión Skip List.
+#   docker compose up -d --build
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: skiplist-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./:/proyecto            # el código del repositorio dentro del contenedor
+      - datos_pg:/var/lib/postgresql
+
+volumes:
+  datos_pg:

@@ -1,0 +1,8 @@
+.git
+datos/generados
+experimentos/resultados/*.csv
+extension/*.o
+extension/*.so
+extension/*.bc
+pruebas/test_skiplist
+docs
